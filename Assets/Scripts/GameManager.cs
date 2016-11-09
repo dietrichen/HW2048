@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -28,6 +29,14 @@ public class GameManager : MonoBehaviour
 		rows.Add(new Tile[] { AllTiles[1, 0], AllTiles[1, 1], AllTiles[1, 2], AllTiles[1, 3] });
 		rows.Add(new Tile[] { AllTiles[2, 0], AllTiles[2, 1], AllTiles[2, 2], AllTiles[2, 3] });
 		rows.Add(new Tile[] { AllTiles[3, 0], AllTiles[3, 1], AllTiles[3, 2], AllTiles[3, 3] });
+
+		Generate();
+		Generate();
+	}
+
+	public void NewGameButtonHandler()
+	{
+		SceneManager.LoadScene("Scene");
 	}
 
 	bool MakeOneMoveDownIndex(Tile[] LineOfTiles)
@@ -48,6 +57,7 @@ public class GameManager : MonoBehaviour
 				LineOfTiles[i].Number *= 2;
 				LineOfTiles[i + 1].Number = 0;
 				LineOfTiles[i].mergedThisTurn = true;
+				ScoreTracker.Instance.Score += LineOfTiles[i].Number;
 				return true;
 			}
 
@@ -73,6 +83,7 @@ public class GameManager : MonoBehaviour
 				LineOfTiles[i].Number *= 2;
 				LineOfTiles[i - 1].Number = 0;
 				LineOfTiles[i].mergedThisTurn = true;
+				ScoreTracker.Instance.Score += LineOfTiles[i].Number;
 				return true;
 			}
 		}
@@ -96,13 +107,13 @@ public class GameManager : MonoBehaviour
 	}
 
 	// Update is called once per frame
-	void Update()
-	{
-		if (Input.GetKeyDown(KeyCode.G))
-		{
-			Generate();
-		}
-	}
+	//	void Update()
+	//	{
+	//		if (Input.GetKeyDown(KeyCode.G))
+	//		{
+	//			Generate();
+	//		}
+	//	}
 
 	private void ResetMergedFlags()
 	{
@@ -112,9 +123,18 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
+	private void UpdateEmptyTiles()
+	{
+		EmptyTiles.Clear();
+		foreach (Tile t in AllTiles)
+			if (t.Number == 0)
+				EmptyTiles.Add(t);
+	}
+
 	public void Move(MoveDirection md)
 	{
 		Debug.Log(md.ToString() + " move.");
+		bool moveMade = false;
 
 		ResetMergedFlags();
 		for (int i = 0; i < rows.Count; i++)
@@ -123,22 +143,35 @@ public class GameManager : MonoBehaviour
 			{
 				case MoveDirection.Down:
 					while (MakeOneMoveUpIndex(columns[i]))
-					{ }
+					{
+						moveMade = true;
+					}
 					break;
 
 				case MoveDirection.Up:
 					while (MakeOneMoveDownIndex(columns[i]))
-					{ }
+					{
+						moveMade = true;
+					}
 					break;
 				case MoveDirection.Left:
 					while (MakeOneMoveDownIndex(rows[i]))
-					{ }
+					{
+						moveMade = true;
+					}
 					break;
 				case MoveDirection.Right:
 					while (MakeOneMoveUpIndex(rows[i]))
-					{ }
+					{
+						moveMade = true;
+					}
 					break;
 			}
+		}
+		if (moveMade)
+		{
+			UpdateEmptyTiles();
+			Generate();
 		}
 	}
 }
