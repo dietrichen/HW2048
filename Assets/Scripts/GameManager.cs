@@ -5,8 +5,8 @@ using System.Collections.Generic;
 public class GameManager : MonoBehaviour
 {
 	private Tile[,] AllTiles = new Tile[4, 4];
-	private List<Tile[]> columns = new List<Tile[]>();
-	private List<Tile[]> rows = new List<Tile[]>();
+	private readonly List<Tile[]> columns = new List<Tile[]>();
+	private readonly List<Tile[]> rows = new List<Tile[]>();
 	private List<Tile> EmptyTiles = new List<Tile>();
 
 	// Use this for initialization
@@ -41,6 +41,16 @@ public class GameManager : MonoBehaviour
 				LineOfTiles[i + 1].Number = 0;
 				return true;
 			}
+			//MERGE BLOCK
+			if (LineOfTiles[i].Number != 0 && LineOfTiles[i].Number == LineOfTiles[i + 1].Number &&
+				LineOfTiles[i].mergedThisTurn == false && LineOfTiles[i + 1].mergedThisTurn == false)
+			{
+				LineOfTiles[i].Number *= 2;
+				LineOfTiles[i + 1].Number = 0;
+				LineOfTiles[i].mergedThisTurn = true;
+				return true;
+			}
+
 		}
 		return false;
 	}
@@ -54,6 +64,15 @@ public class GameManager : MonoBehaviour
 			{
 				LineOfTiles[i].Number = LineOfTiles[i - 1].Number;
 				LineOfTiles[i - 1].Number = 0;
+				return true;
+			}
+			//MERGE BLOCK
+			if (LineOfTiles[i].Number != 0 && LineOfTiles[i].Number == LineOfTiles[i - 1].Number &&
+				LineOfTiles[i].mergedThisTurn == false && LineOfTiles[i - 1].mergedThisTurn == false)
+			{
+				LineOfTiles[i].Number *= 2;
+				LineOfTiles[i - 1].Number = 0;
+				LineOfTiles[i].mergedThisTurn = true;
 				return true;
 			}
 		}
@@ -85,20 +104,39 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
+	private void ResetMergedFlags()
+	{
+		foreach (Tile t in AllTiles)
+		{
+			t.mergedThisTurn = false;
+		}
+	}
+
 	public void Move(MoveDirection md)
 	{
 		Debug.Log(md.ToString() + " move.");
+
+		ResetMergedFlags();
 		for (int i = 0; i < rows.Count; i++)
 		{
 			switch (md)
 			{
 				case MoveDirection.Down:
+					while (MakeOneMoveUpIndex(columns[i]))
+					{ }
+					break;
+
+				case MoveDirection.Up:
+					while (MakeOneMoveDownIndex(columns[i]))
+					{ }
 					break;
 				case MoveDirection.Left:
-					break;
-				case MoveDirection.Up:
+					while (MakeOneMoveDownIndex(rows[i]))
+					{ }
 					break;
 				case MoveDirection.Right:
+					while (MakeOneMoveUpIndex(rows[i]))
+					{ }
 					break;
 			}
 		}
