@@ -11,30 +11,30 @@ public class GameManager : MonoBehaviour
 	public Text GameOverScoreText;
 	public GameObject GameOverPanel;
 
-	private Block[,] AllBlocks = new Block[4, 4];
-	private readonly List<Block[]> columns = new List<Block[]>();
-	private readonly List<Block[]> rows = new List<Block[]>();
-	private List<Block> EmptyBlocks = new List<Block>();
+	private Tile[,] AllTiles = new Tile[4, 4];
+	private readonly List<Tile[]> columns = new List<Tile[]>();
+	private readonly List<Tile[]> rows = new List<Tile[]>();
+	private List<Tile> EmptyTiles = new List<Tile>();
 
 	// Use this for initialization
 	void Start()
 	{
-		Block[] AllBlocksOneDim = GameObject.FindObjectsOfType<Block>();
-		foreach (Block t in AllBlocksOneDim)
+		Tile[] AllTilesOneDim = GameObject.FindObjectsOfType<Tile>();
+		foreach (Tile t in AllTilesOneDim)
 		{
 			t.Number = 0;
-			AllBlocks[t.indRow, t.indCol] = t;
-			EmptyBlocks.Add(t);
+			AllTiles[t.indRow, t.indCol] = t;
+			EmptyTiles.Add(t);
 		}
-		columns.Add(new Block[] { AllBlocks[0, 0], AllBlocks[1, 0], AllBlocks[2, 0], AllBlocks[3, 0] });
-		columns.Add(new Block[] { AllBlocks[0, 1], AllBlocks[1, 1], AllBlocks[2, 1], AllBlocks[3, 1] });
-		columns.Add(new Block[] { AllBlocks[0, 2], AllBlocks[1, 2], AllBlocks[2, 2], AllBlocks[3, 2] });
-		columns.Add(new Block[] { AllBlocks[0, 3], AllBlocks[1, 3], AllBlocks[2, 3], AllBlocks[3, 3] });
+		columns.Add(new Tile[] { AllTiles[0, 0], AllTiles[1, 0], AllTiles[2, 0], AllTiles[3, 0] });
+		columns.Add(new Tile[] { AllTiles[0, 1], AllTiles[1, 1], AllTiles[2, 1], AllTiles[3, 1] });
+		columns.Add(new Tile[] { AllTiles[0, 2], AllTiles[1, 2], AllTiles[2, 2], AllTiles[3, 2] });
+		columns.Add(new Tile[] { AllTiles[0, 3], AllTiles[1, 3], AllTiles[2, 3], AllTiles[3, 3] });
 
-		rows.Add(new Block[] { AllBlocks[0, 0], AllBlocks[0, 1], AllBlocks[0, 2], AllBlocks[0, 3] });
-		rows.Add(new Block[] { AllBlocks[1, 0], AllBlocks[1, 1], AllBlocks[1, 2], AllBlocks[1, 3] });
-		rows.Add(new Block[] { AllBlocks[2, 0], AllBlocks[2, 1], AllBlocks[2, 2], AllBlocks[2, 3] });
-		rows.Add(new Block[] { AllBlocks[3, 0], AllBlocks[3, 1], AllBlocks[3, 2], AllBlocks[3, 3] });
+		rows.Add(new Tile[] { AllTiles[0, 0], AllTiles[0, 1], AllTiles[0, 2], AllTiles[0, 3] });
+		rows.Add(new Tile[] { AllTiles[1, 0], AllTiles[1, 1], AllTiles[1, 2], AllTiles[1, 3] });
+		rows.Add(new Tile[] { AllTiles[2, 0], AllTiles[2, 1], AllTiles[2, 2], AllTiles[2, 3] });
+		rows.Add(new Tile[] { AllTiles[3, 0], AllTiles[3, 1], AllTiles[3, 2], AllTiles[3, 3] });
 
 		Generate();
 		Generate();
@@ -49,13 +49,15 @@ public class GameManager : MonoBehaviour
 
 	private void GameOver()
 	{
+
 		GameOverScoreText.text = ScoreTracker.Instance.Score.ToString();
 		GameOverPanel.SetActive(true);
+		YouWonText.SetActive(false);
 	}
 
 	bool CanMove()
 	{
-		if (EmptyBlocks.Count > 0)
+		if (EmptyTiles.Count > 0)
 			return true;
 		else
 		{
@@ -63,13 +65,13 @@ public class GameManager : MonoBehaviour
 			//Check Columns
 			for (int i = 0; i < columns.Count; i++)
 				for (int j = 0; j < rows.Count - 1; j++)
-					if (AllBlocks[j, i].Number == AllBlocks[j + 1, i].Number)
+					if (AllTiles[j, i].Number == AllTiles[j + 1, i].Number)
 						return true;
 
 			//Check Rows
 			for (int i = 0; i < rows.Count; i++)
 				for (int j = 0; j < columns.Count - 1; j++)
-					if (AllBlocks[i, j].Number == AllBlocks[i, j + 1].Number)
+					if (AllTiles[i, j].Number == AllTiles[i, j + 1].Number)
 						return true;
 		}
 		return false;
@@ -82,26 +84,26 @@ public class GameManager : MonoBehaviour
 		SceneManager.LoadScene("Scene");
 	}
 
-	bool MakeOneMoveDownIndex(Block[] LineOfBlocks)
+	bool MakeOneMoveDownIndex(Tile[] LineOfTiles)
 	{
-		for (int i = 0; i < LineOfBlocks.Length - 1; i++)
+		for (int i = 0; i < LineOfTiles.Length - 1; i++)
 		{
 			//MOVEBLOCK
-			if (LineOfBlocks[i].Number == 0 && LineOfBlocks[i + 1].Number != 0)
+			if (LineOfTiles[i].Number == 0 && LineOfTiles[i + 1].Number != 0)
 			{
-				LineOfBlocks[i].Number = LineOfBlocks[i + 1].Number;
-				LineOfBlocks[i + 1].Number = 0;
+				LineOfTiles[i].Number = LineOfTiles[i + 1].Number;
+				LineOfTiles[i + 1].Number = 0;
 				return true;
 			}
 			//MERGE BLOCK
-			if (LineOfBlocks[i].Number != 0 && LineOfBlocks[i].Number == LineOfBlocks[i + 1].Number &&
-				LineOfBlocks[i].mergedThisTurn == false && LineOfBlocks[i + 1].mergedThisTurn == false)
+			if (LineOfTiles[i].Number != 0 && LineOfTiles[i].Number == LineOfTiles[i + 1].Number &&
+				LineOfTiles[i].mergedThisTurn == false && LineOfTiles[i + 1].mergedThisTurn == false)
 			{
-				LineOfBlocks[i].Number *= 2;
-				LineOfBlocks[i + 1].Number = 0;
-				LineOfBlocks[i].mergedThisTurn = true;
-				ScoreTracker.Instance.Score += LineOfBlocks[i].Number;
-				if (LineOfBlocks[i].Number == 2048)
+				LineOfTiles[i].Number *= 2;
+				LineOfTiles[i + 1].Number = 0;
+				LineOfTiles[i].mergedThisTurn = true;
+				ScoreTracker.Instance.Score += LineOfTiles[i].Number;
+				if (LineOfTiles[i].Number == 2048)
 					YouWon();
 				return true;
 			}
@@ -110,26 +112,26 @@ public class GameManager : MonoBehaviour
 		return false;
 	}
 
-	bool MakeOneMoveUpIndex(Block[] LineOfBlocks)
+	bool MakeOneMoveUpIndex(Tile[] LineOfTiles)
 	{
-		for (int i = LineOfBlocks.Length - 1; i > 0; i--)
+		for (int i = LineOfTiles.Length - 1; i > 0; i--)
 		{
 			//MOVEBLOCK
-			if (LineOfBlocks[i].Number == 0 && LineOfBlocks[i - 1].Number != 0)
+			if (LineOfTiles[i].Number == 0 && LineOfTiles[i - 1].Number != 0)
 			{
-				LineOfBlocks[i].Number = LineOfBlocks[i - 1].Number;
-				LineOfBlocks[i - 1].Number = 0;
+				LineOfTiles[i].Number = LineOfTiles[i - 1].Number;
+				LineOfTiles[i - 1].Number = 0;
 				return true;
 			}
 			//MERGE BLOCK
-			if (LineOfBlocks[i].Number != 0 && LineOfBlocks[i].Number == LineOfBlocks[i - 1].Number &&
-				LineOfBlocks[i].mergedThisTurn == false && LineOfBlocks[i - 1].mergedThisTurn == false)
+			if (LineOfTiles[i].Number != 0 && LineOfTiles[i].Number == LineOfTiles[i - 1].Number &&
+				LineOfTiles[i].mergedThisTurn == false && LineOfTiles[i - 1].mergedThisTurn == false)
 			{
-				LineOfBlocks[i].Number *= 2;
-				LineOfBlocks[i - 1].Number = 0;
-				LineOfBlocks[i].mergedThisTurn = true;
-				ScoreTracker.Instance.Score += LineOfBlocks[i].Number;
-				if (LineOfBlocks[i].Number == 2048)
+				LineOfTiles[i].Number *= 2;
+				LineOfTiles[i - 1].Number = 0;
+				LineOfTiles[i].mergedThisTurn = true;
+				ScoreTracker.Instance.Score += LineOfTiles[i].Number;
+				if (LineOfTiles[i].Number == 2048)
 					YouWon();
 				return true;
 			}
@@ -139,34 +141,34 @@ public class GameManager : MonoBehaviour
 
 	void Generate()
 	{
-		if (EmptyBlocks.Count > 0)
+		if (EmptyTiles.Count > 0)
 		{
-			int indexForNewNumber = Random.Range(0, EmptyBlocks.Count);
+			int indexForNewNumber = Random.Range(0, EmptyTiles.Count);
 			int randomNum = Random.Range(0, 10);
 			if (randomNum == 0)
 			{
-				EmptyBlocks[indexForNewNumber].Number = 4;
+				EmptyTiles[indexForNewNumber].Number = 4;
 			}
 			else
-				EmptyBlocks[indexForNewNumber].Number = 2;
-			EmptyBlocks.RemoveAt(indexForNewNumber);
+				EmptyTiles[indexForNewNumber].Number = 2;
+			EmptyTiles.RemoveAt(indexForNewNumber);
 		}
 	}
 
 	private void ResetMergedFlags()
 	{
-		foreach (Block t in AllBlocks)
+		foreach (Tile t in AllTiles)
 		{
 			t.mergedThisTurn = false;
 		}
 	}
 
-	private void UpdateEmptyBlocks()
+	private void UpdateEmptyTiles()
 	{
-		EmptyBlocks.Clear();
-		foreach (Block t in AllBlocks)
+		EmptyTiles.Clear();
+		foreach (Tile t in AllTiles)
 			if (t.Number == 0)
-				EmptyBlocks.Add(t);
+				EmptyTiles.Add(t);
 	}
 
 	public void Move(MoveDirection md)
@@ -208,7 +210,7 @@ public class GameManager : MonoBehaviour
 		}
 		if (moveMade)
 		{
-			UpdateEmptyBlocks();
+			UpdateEmptyTiles();
 			Generate();
 
 			if (!CanMove())
