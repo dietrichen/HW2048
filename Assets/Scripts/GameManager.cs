@@ -2,36 +2,79 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-	private Tile[,] AllTiles = new Tile[4, 4];
-	private readonly List<Tile[]> columns = new List<Tile[]>();
-	private readonly List<Tile[]> rows = new List<Tile[]>();
-	private List<Tile> EmptyTiles = new List<Tile>();
+	public GameObject YouWonText;
+	public GameObject GameOverText;
+	public Text GameOverScoreText;
+	public GameObject GameOverPanel;
+
+	private Block[,] AllBlocks = new Block[4, 4];
+	private readonly List<Block[]> columns = new List<Block[]>();
+	private readonly List<Block[]> rows = new List<Block[]>();
+	private List<Block> EmptyBlocks = new List<Block>();
 
 	// Use this for initialization
 	void Start()
 	{
-		Tile[] AllTilesOneDim = GameObject.FindObjectsOfType<Tile>();
-		foreach (Tile t in AllTilesOneDim)
+		Block[] AllBlocksOneDim = GameObject.FindObjectsOfType<Block>();
+		foreach (Block t in AllBlocksOneDim)
 		{
 			t.Number = 0;
-			AllTiles[t.indRow, t.indCol] = t;
-			EmptyTiles.Add(t);
+			AllBlocks[t.indRow, t.indCol] = t;
+			EmptyBlocks.Add(t);
 		}
-		columns.Add(new Tile[] { AllTiles[0, 0], AllTiles[1, 0], AllTiles[2, 0], AllTiles[3, 0] });
-		columns.Add(new Tile[] { AllTiles[0, 1], AllTiles[1, 1], AllTiles[2, 1], AllTiles[3, 1] });
-		columns.Add(new Tile[] { AllTiles[0, 2], AllTiles[1, 2], AllTiles[2, 2], AllTiles[3, 2] });
-		columns.Add(new Tile[] { AllTiles[0, 3], AllTiles[1, 3], AllTiles[2, 3], AllTiles[3, 3] });
+		columns.Add(new Block[] { AllBlocks[0, 0], AllBlocks[1, 0], AllBlocks[2, 0], AllBlocks[3, 0] });
+		columns.Add(new Block[] { AllBlocks[0, 1], AllBlocks[1, 1], AllBlocks[2, 1], AllBlocks[3, 1] });
+		columns.Add(new Block[] { AllBlocks[0, 2], AllBlocks[1, 2], AllBlocks[2, 2], AllBlocks[3, 2] });
+		columns.Add(new Block[] { AllBlocks[0, 3], AllBlocks[1, 3], AllBlocks[2, 3], AllBlocks[3, 3] });
 
-		rows.Add(new Tile[] { AllTiles[0, 0], AllTiles[0, 1], AllTiles[0, 2], AllTiles[0, 3] });
-		rows.Add(new Tile[] { AllTiles[1, 0], AllTiles[1, 1], AllTiles[1, 2], AllTiles[1, 3] });
-		rows.Add(new Tile[] { AllTiles[2, 0], AllTiles[2, 1], AllTiles[2, 2], AllTiles[2, 3] });
-		rows.Add(new Tile[] { AllTiles[3, 0], AllTiles[3, 1], AllTiles[3, 2], AllTiles[3, 3] });
+		rows.Add(new Block[] { AllBlocks[0, 0], AllBlocks[0, 1], AllBlocks[0, 2], AllBlocks[0, 3] });
+		rows.Add(new Block[] { AllBlocks[1, 0], AllBlocks[1, 1], AllBlocks[1, 2], AllBlocks[1, 3] });
+		rows.Add(new Block[] { AllBlocks[2, 0], AllBlocks[2, 1], AllBlocks[2, 2], AllBlocks[2, 3] });
+		rows.Add(new Block[] { AllBlocks[3, 0], AllBlocks[3, 1], AllBlocks[3, 2], AllBlocks[3, 3] });
 
 		Generate();
 		Generate();
+	}
+	private void YouWon()
+	{
+		GameOverText.SetActive(false);
+		YouWonText.SetActive(true);
+		GameOverScoreText.text = ScoreTracker.Instance.Score.ToString();
+		GameOverPanel.SetActive(true);
+	}
+
+	private void GameOver()
+	{
+		GameOverScoreText.text = ScoreTracker.Instance.Score.ToString();
+		GameOverPanel.SetActive(true);
+	}
+
+	bool CanMove()
+	{
+		if (EmptyBlocks.Count > 0)
+			return true;
+		else
+		{
+
+			//Check Columns
+			for (int i = 0; i < columns.Count; i++)
+				for (int j = 0; j < rows.Count - 1; j++)
+					if (AllBlocks[j, i].Number == AllBlocks[j + 1, i].Number)
+						return true;
+
+			//Check Rows
+			for (int i = 0; i < rows.Count; i++)
+				for (int j = 0; j < columns.Count - 1; j++)
+					if (AllBlocks[i, j].Number == AllBlocks[i, j + 1].Number)
+						return true;
+		}
+		return false;
+
+
 	}
 
 	public void NewGameButtonHandler()
@@ -39,25 +82,27 @@ public class GameManager : MonoBehaviour
 		SceneManager.LoadScene("Scene");
 	}
 
-	bool MakeOneMoveDownIndex(Tile[] LineOfTiles)
+	bool MakeOneMoveDownIndex(Block[] LineOfBlocks)
 	{
-		for (int i = 0; i < LineOfTiles.Length - 1; i++)
+		for (int i = 0; i < LineOfBlocks.Length - 1; i++)
 		{
 			//MOVEBLOCK
-			if (LineOfTiles[i].Number == 0 && LineOfTiles[i + 1].Number != 0)
+			if (LineOfBlocks[i].Number == 0 && LineOfBlocks[i + 1].Number != 0)
 			{
-				LineOfTiles[i].Number = LineOfTiles[i + 1].Number;
-				LineOfTiles[i + 1].Number = 0;
+				LineOfBlocks[i].Number = LineOfBlocks[i + 1].Number;
+				LineOfBlocks[i + 1].Number = 0;
 				return true;
 			}
 			//MERGE BLOCK
-			if (LineOfTiles[i].Number != 0 && LineOfTiles[i].Number == LineOfTiles[i + 1].Number &&
-				LineOfTiles[i].mergedThisTurn == false && LineOfTiles[i + 1].mergedThisTurn == false)
+			if (LineOfBlocks[i].Number != 0 && LineOfBlocks[i].Number == LineOfBlocks[i + 1].Number &&
+				LineOfBlocks[i].mergedThisTurn == false && LineOfBlocks[i + 1].mergedThisTurn == false)
 			{
-				LineOfTiles[i].Number *= 2;
-				LineOfTiles[i + 1].Number = 0;
-				LineOfTiles[i].mergedThisTurn = true;
-				ScoreTracker.Instance.Score += LineOfTiles[i].Number;
+				LineOfBlocks[i].Number *= 2;
+				LineOfBlocks[i + 1].Number = 0;
+				LineOfBlocks[i].mergedThisTurn = true;
+				ScoreTracker.Instance.Score += LineOfBlocks[i].Number;
+				if (LineOfBlocks[i].Number == 2048)
+					YouWon();
 				return true;
 			}
 
@@ -65,25 +110,27 @@ public class GameManager : MonoBehaviour
 		return false;
 	}
 
-	bool MakeOneMoveUpIndex(Tile[] LineOfTiles)
+	bool MakeOneMoveUpIndex(Block[] LineOfBlocks)
 	{
-		for (int i = LineOfTiles.Length - 1; i > 0; i--)
+		for (int i = LineOfBlocks.Length - 1; i > 0; i--)
 		{
 			//MOVEBLOCK
-			if (LineOfTiles[i].Number == 0 && LineOfTiles[i - 1].Number != 0)
+			if (LineOfBlocks[i].Number == 0 && LineOfBlocks[i - 1].Number != 0)
 			{
-				LineOfTiles[i].Number = LineOfTiles[i - 1].Number;
-				LineOfTiles[i - 1].Number = 0;
+				LineOfBlocks[i].Number = LineOfBlocks[i - 1].Number;
+				LineOfBlocks[i - 1].Number = 0;
 				return true;
 			}
 			//MERGE BLOCK
-			if (LineOfTiles[i].Number != 0 && LineOfTiles[i].Number == LineOfTiles[i - 1].Number &&
-				LineOfTiles[i].mergedThisTurn == false && LineOfTiles[i - 1].mergedThisTurn == false)
+			if (LineOfBlocks[i].Number != 0 && LineOfBlocks[i].Number == LineOfBlocks[i - 1].Number &&
+				LineOfBlocks[i].mergedThisTurn == false && LineOfBlocks[i - 1].mergedThisTurn == false)
 			{
-				LineOfTiles[i].Number *= 2;
-				LineOfTiles[i - 1].Number = 0;
-				LineOfTiles[i].mergedThisTurn = true;
-				ScoreTracker.Instance.Score += LineOfTiles[i].Number;
+				LineOfBlocks[i].Number *= 2;
+				LineOfBlocks[i - 1].Number = 0;
+				LineOfBlocks[i].mergedThisTurn = true;
+				ScoreTracker.Instance.Score += LineOfBlocks[i].Number;
+				if (LineOfBlocks[i].Number == 2048)
+					YouWon();
 				return true;
 			}
 		}
@@ -92,48 +139,39 @@ public class GameManager : MonoBehaviour
 
 	void Generate()
 	{
-		if (EmptyTiles.Count > 0)
+		if (EmptyBlocks.Count > 0)
 		{
-			int indexForNewNumber = Random.Range(0, EmptyTiles.Count);
+			int indexForNewNumber = Random.Range(0, EmptyBlocks.Count);
 			int randomNum = Random.Range(0, 10);
 			if (randomNum == 0)
 			{
-				EmptyTiles[indexForNewNumber].Number = 4;
+				EmptyBlocks[indexForNewNumber].Number = 4;
 			}
 			else
-				EmptyTiles[indexForNewNumber].Number = 2;
-			EmptyTiles.RemoveAt(indexForNewNumber);
+				EmptyBlocks[indexForNewNumber].Number = 2;
+			EmptyBlocks.RemoveAt(indexForNewNumber);
 		}
 	}
 
-	// Update is called once per frame
-	//	void Update()
-	//	{
-	//		if (Input.GetKeyDown(KeyCode.G))
-	//		{
-	//			Generate();
-	//		}
-	//	}
-
 	private void ResetMergedFlags()
 	{
-		foreach (Tile t in AllTiles)
+		foreach (Block t in AllBlocks)
 		{
 			t.mergedThisTurn = false;
 		}
 	}
 
-	private void UpdateEmptyTiles()
+	private void UpdateEmptyBlocks()
 	{
-		EmptyTiles.Clear();
-		foreach (Tile t in AllTiles)
+		EmptyBlocks.Clear();
+		foreach (Block t in AllBlocks)
 			if (t.Number == 0)
-				EmptyTiles.Add(t);
+				EmptyBlocks.Add(t);
 	}
 
 	public void Move(MoveDirection md)
 	{
-		Debug.Log(md.ToString() + " move.");
+		Debug.Log(md + " move.");
 		bool moveMade = false;
 
 		ResetMergedFlags();
@@ -170,8 +208,13 @@ public class GameManager : MonoBehaviour
 		}
 		if (moveMade)
 		{
-			UpdateEmptyTiles();
+			UpdateEmptyBlocks();
 			Generate();
+
+			if (!CanMove())
+			{
+				GameOver();
+			}
 		}
 	}
 }
