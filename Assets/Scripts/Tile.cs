@@ -4,6 +4,9 @@ using UnityEngine.UI;
 
 public class Tile : MonoBehaviour
 {
+	public int indRow;
+	public int indCol;
+
 	public int Number
 	{ 
 		get
