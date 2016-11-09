@@ -1,5 +1,10 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿//Name: Eugene Dietrich
+//Inst: Dr. Burns
+//Crs:	CSC 496
+//Ass: 	HW4
+//File:	InputManager.cs
+
+using UnityEngine;
 
 public enum MoveDirection
 {
@@ -11,36 +16,43 @@ public enum MoveDirection
 
 public class InputManager : MonoBehaviour
 {
-	private GameManager gm;
+	GameManager gm;
 
-	void Awake ()
+	void Awake()
 	{
-		gm = GameObject.FindObjectOfType<GameManager> ();
-		Debug.Log ("Awake");
+		gm = FindObjectOfType<GameManager>();
+		Debug.Log("Awake");
 	}
 	// Use this for initialization
-	void Start ()
+	void Start()
 	{
-	
+
 	}
-	
+
 	// Update is called once per frame
-	void Update ()
+	void Update()
 	{
-		if (Input.GetKeyDown (KeyCode.RightArrow)) {
+		if (Input.GetKeyDown(KeyCode.RightArrow))
+		{
 			// move right
-			gm.Move (MoveDirection.Right);
-		} else if (Input.GetKeyDown (KeyCode.LeftArrow)) {
-			// move left
-			gm.Move (MoveDirection.Left);
-		} else if (Input.GetKeyDown (KeyCode.UpArrow)) {
-			// move up
-			gm.Move (MoveDirection.Up);
-		} else if (Input.GetKeyDown (KeyCode.DownArrow)) {
-			// move down
-			gm.Move (MoveDirection.Down);
+			gm.Move(MoveDirection.Right);
 		}
-				
+		else if (Input.GetKeyDown(KeyCode.LeftArrow))
+		{
+			// move left
+			gm.Move(MoveDirection.Left);
+		}
+		else if (Input.GetKeyDown(KeyCode.UpArrow))
+		{
+			// move up
+			gm.Move(MoveDirection.Up);
+		}
+		else if (Input.GetKeyDown(KeyCode.DownArrow))
+		{
+			// move down
+			gm.Move(MoveDirection.Down);
+		}
+
 	}
 }
 

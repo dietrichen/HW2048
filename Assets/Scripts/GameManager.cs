@@ -1,5 +1,10 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿//Name: Eugene Dietrich
+//Inst: Dr. Burns
+//Crs:	CSC 496
+//Ass: 	HW4
+//File:	GameManager.cs
+
+using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -11,15 +16,15 @@ public class GameManager : MonoBehaviour
 	public Text GameOverScoreText;
 	public GameObject GameOverPanel;
 
-	private Tile[,] AllTiles = new Tile[4, 4];
-	private readonly List<Tile[]> columns = new List<Tile[]>();
-	private readonly List<Tile[]> rows = new List<Tile[]>();
-	private List<Tile> EmptyTiles = new List<Tile>();
+	Tile[,] AllTiles = new Tile[4, 4];
+	readonly List<Tile[]> columns = new List<Tile[]>();
+	readonly List<Tile[]> rows = new List<Tile[]>();
+	List<Tile> EmptyTiles = new List<Tile>();
 
 	// Use this for initialization
 	void Start()
 	{
-		Tile[] AllTilesOneDim = GameObject.FindObjectsOfType<Tile>();
+		Tile[] AllTilesOneDim = FindObjectsOfType<Tile>();
 		foreach (Tile t in AllTilesOneDim)
 		{
 			t.Number = 0;
@@ -39,7 +44,7 @@ public class GameManager : MonoBehaviour
 		Generate();
 		Generate();
 	}
-	private void YouWon()
+	void YouWon()
 	{
 		GameOverText.SetActive(false);
 		YouWonText.SetActive(true);
@@ -47,7 +52,7 @@ public class GameManager : MonoBehaviour
 		GameOverPanel.SetActive(true);
 	}
 
-	private void GameOver()
+	void GameOver()
 	{
 
 		GameOverScoreText.text = ScoreTracker.Instance.Score.ToString();
@@ -155,7 +160,7 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
-	private void ResetMergedFlags()
+	void ResetMergedFlags()
 	{
 		foreach (Tile t in AllTiles)
 		{
@@ -163,7 +168,7 @@ public class GameManager : MonoBehaviour
 		}
 	}
 
-	private void UpdateEmptyTiles()
+	void UpdateEmptyTiles()
 	{
 		EmptyTiles.Clear();
 		foreach (Tile t in AllTiles)

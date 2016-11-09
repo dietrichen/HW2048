@@ -1,12 +1,17 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿//Name: Eugene Dietrich
+//Inst: Dr. Burns
+//Crs:	CSC 496
+//Ass: 	HW4
+//File:	ScoreTracker.cs
+
+using UnityEngine;
 using UnityEngine.UI;
 
 
 public class ScoreTracker : MonoBehaviour
 {
 
-	private int score;
+	int score;
 	public static ScoreTracker Instance;
 	public Text ScoreText;
 	public Text HighScoreText;
